@@ -17,9 +17,8 @@ class Config:
     
     def _get_default_model_path(self) -> str:
         """Get the default MediaPipe face landmarker model path."""
-        # MediaPipe provides models through the package
-        # For now, we'll use a placeholder that will be downloaded
-        return "face_landmarker.task"
+        # Use the downloaded model in the models directory
+        return "models/face_landmarker.task"
     
     def save(self, filepath: str) -> None:
         """Save configuration to a JSON file."""
@@ -32,7 +31,11 @@ class Config:
             'presence_threshold': self.presence_threshold
         }
         
-        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        # Only create directory if filepath contains a directory
+        directory = os.path.dirname(filepath)
+        if directory:
+            os.makedirs(directory, exist_ok=True)
+        
         with open(filepath, 'w') as f:
             json.dump(config_data, f, indent=2)
     
