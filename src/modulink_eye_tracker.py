@@ -12,6 +12,8 @@ from typing import Dict, Any
 from modulink import Ctx, chain, create_context, create_cli_context
 from src.eye_tracker.detector import EyeDetector
 from src.utils.config import Config
+from src.utils.context_logger import init_context_logger, get_context_logger
+from src.utils.logging_middleware import create_logged_chain, logged_link
 
 # ==================== LINKS (Pure Functions) ====================
 
@@ -191,24 +193,33 @@ async def logging_middleware(ctx: Ctx) -> Ctx:
 
 # ==================== CHAINS ====================
 
-# Initialization chain
-initialization_chain = chain(
-    initialize_config_link,
-    initialize_detector_link,
-    initialize_camera_link
+# Create chains with comprehensive logging
+initialization_chain = create_logged_chain(
+    chain(
+        initialize_config_link,
+        initialize_detector_link,
+        initialize_camera_link
+    ),
+    "initialization_chain"
 )
 
 # Single frame processing chain
-frame_processing_chain = chain(
-    update_frame_count_link,
-    capture_frame_link,
-    detect_eyes_link,
-    format_output_link,
-    display_output_link
+frame_processing_chain = create_logged_chain(
+    chain(
+        update_frame_count_link,
+        capture_frame_link,
+        detect_eyes_link,
+        format_output_link,
+        display_output_link
+    ),
+    "frame_processing_chain"
 )
 
 # Cleanup chain
-cleanup_chain = chain(cleanup_resources_link)
+cleanup_chain = create_logged_chain(
+    chain(cleanup_resources_link),
+    "cleanup_chain"
+)
 
 # ==================== MAIN APPLICATION FUNCTIONS ====================
 
@@ -228,6 +239,10 @@ async def run_eye_tracking_modulink(
     Returns:
         Final context with results
     """
+    # Initialize comprehensive logging
+    logger = init_context_logger("logs", "DEBUG")
+    print(f"📝 Logging initialized: {logger.log_file}")
+    
     # Create initial context
     initial_ctx = create_cli_context(
         command="eye_tracking",
@@ -285,6 +300,10 @@ async def demo_modulink_chain():
     """
     print("🧪 ModuLink Chain Demo (No Camera Required)")
     print("=" * 50)
+    
+    # Initialize comprehensive logging
+    logger = init_context_logger("logs", "DEBUG")
+    print(f"📝 Logging initialized: {logger.log_file}")
     
     # Create a demo context with mock data
     demo_ctx = create_context(
