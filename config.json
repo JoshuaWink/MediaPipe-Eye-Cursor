@@ -1,0 +1,8 @@
+{
+  "camera_index": 0,
+  "calibration_points": 5,
+  "model_path": "models/face_landmarker.task",
+  "confidence_threshold": 0.5,
+  "tracking_confidence": 0.5,
+  "presence_threshold": 0.5
+}
